@@ -4,16 +4,16 @@
 SENSITIVITY=100
 SPEED=160
 INERTIA=6
-THRESH=8
+THRESH=5
 RESOLUTION=200
 DEVFILE=`find /sys/devices/platform/i8042 -name name | xargs grep -Fl TrackPoint | sed 's/\/input\/input[0-9]*\/name$//'`
 
 update_ss() {
-  echo ${SENSITIVITY} | sudo tee ${DEVFILE}/sensitivity
-  echo ${SPEED} | sudo tee ${DEVFILE}/speed
-  echo ${INERTIA} | sudo tee ${DEVFILE}/inertia
-  echo ${THRESH} | sudo tee ${DEVFILE}/thresh
-  echo ${RESOLUTION} | sudo tee ${DEVFILE}/resolution
+  echo ${SENSITIVITY} | tee ${DEVFILE}/sensitivity
+  echo ${SPEED} | tee ${DEVFILE}/speed
+  echo ${INERTIA} | tee ${DEVFILE}/inertia
+  echo ${THRESH} | tee ${DEVFILE}/thresh
+  echo ${RESOLUTION} | tee ${DEVFILE}/resolution
 }
 
 help() {
@@ -27,17 +27,14 @@ help() {
 OPTION=$1
 if [ "${OPTION}" = "sys" ]; then
   update_ss
-  return
 elif [ "${OPTION}" = "udev" ]; then
-  sudo tee /etc/udev/rules.d/52-trackpoint.rules <<EOF
+  tee /etc/udev/rules.d/52-trackpoint.rules <<EOF
 SUBSYSTEM=="serio", DRIVERS=="psmouse", DEVPATH=="/sys/devices/platform/i8042/serio1/serio2", ATTR{sensitivity}="${SENSITIVITY}", ATTR{speed}="${SPEED}", ATTR{inertia}="${INERTIA}"
 EOF
-  sudo udevadm control --reload-rules
-  sudo udevadm trigger
-  return
+  udevadm control --reload-rules
+  udevadm trigger
 elif [ "${OPTION}" = "find" ]; then
   echo ${DEVFILE}
-  return
 else
   help
 fi
