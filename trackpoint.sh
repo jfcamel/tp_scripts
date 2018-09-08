@@ -1,19 +1,36 @@
 #!/bin/bash
 
+load_params() {
+  SCRIPTDIR=`dirname ${BASH_SOURCE[0]}`
+  . ${SCRIPTDIR}/params.sh
+}
 
-SENSITIVITY=100
-SPEED=160
-INERTIA=6
-THRESH=5
-RESOLUTION=200
+load_params
 DEVFILE=`find /sys/devices/platform/i8042 -name name | xargs grep -Fl TrackPoint | sed 's/\/input\/input[0-9]*\/name$//'`
 
 update_ss() {
+  echo -n "sensitivity "
   echo ${SENSITIVITY} | tee ${DEVFILE}/sensitivity
+  echo -n "speed "
   echo ${SPEED} | tee ${DEVFILE}/speed
+  echo -n "inertia "
   echo ${INERTIA} | tee ${DEVFILE}/inertia
+  echo -n "thresh "
   echo ${THRESH} | tee ${DEVFILE}/thresh
+  echo -n "upthresh "
+  echo ${UPTHRESH} | tee ${DEVFILE}/upthresh
+  echo -n "jenks "
+  echo ${JENKS} | tee ${DEVFILE}/jenks
+  echo -n "resolution "
   echo ${RESOLUTION} | tee ${DEVFILE}/resolution
+  echo -n "rate "
+  echo ${RATE} | tee ${DEVFILE}/rate
+  echo -n "ztime "
+  echo ${ZTIME} | tee ${DEVFILE}/ztime
+  echo -n "skipback "
+  echo ${SKIPBACK} | tee ${DEVFILE}/skipback
+  echo -n "reach "
+  echo ${REACH} | tee ${DEVFILE}/reach
 }
 
 help() {
@@ -29,7 +46,7 @@ if [ "${OPTION}" = "sys" ]; then
   update_ss
 elif [ "${OPTION}" = "udev" ]; then
   tee /etc/udev/rules.d/52-trackpoint.rules <<EOF
-SUBSYSTEM=="serio", DRIVERS=="psmouse", DEVPATH=="/sys/devices/platform/i8042/serio1/serio2", ATTR{sensitivity}="${SENSITIVITY}", ATTR{speed}="${SPEED}", ATTR{inertia}="${INERTIA}"
+SUBSYSTEM=="serio", DRIVERS=="psmouse", DEVPATH=="/sys/devices/platform/i8042/serio1/serio2", ATTR{sensitivity}="${SENSITIVITY}", ATTR{speed}="${SPEED}", ATTR{inertia}="${INERTIA}", ATTR{thresh}="${THRESH}", ATTR{upthresh}="${UPTHRESH}", ATTR{jenks}="${JENKS}", ATTR{resolution}="${RESOLUTION}", ATTR{rate}="${RATE}", ATTR{ztime}="${ZTIME}", ATTR{skipback}="${SKIPBACK}", ATTR{reach}="${REACH}"
 EOF
   udevadm control --reload-rules
   udevadm trigger
