@@ -31,6 +31,7 @@ update_ss() {
   echo ${SKIPBACK} | tee ${DEVFILE}/skipback
   echo -n "reach "
   echo ${REACH} | tee ${DEVFILE}/reach
+
 }
 
 help() {
